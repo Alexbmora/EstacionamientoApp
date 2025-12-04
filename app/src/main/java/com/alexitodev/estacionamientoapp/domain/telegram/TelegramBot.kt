@@ -13,7 +13,7 @@ import javax.inject.Inject
  * Contiene la lógica de negocio para interpretar y responder a los comandos del bot de Telegram.
  */
 class TelegramBot @Inject constructor(
-    private val telegramRepository: TelegramRepository, // Usamos la interfaz del dominio
+    private val ITelegramRepository: ITelegramRepository, // Usamos la interfaz del dominio
     private val loggerRepository: LoggerRepository,
     private val preferencesRepository: PreferencesRepository
 ) {
@@ -41,7 +41,7 @@ class TelegramBot @Inject constructor(
      */
     suspend fun checkAndHandleNewMessages() {
         // Obtenemos las actualizaciones usando el repositorio.
-        val result = telegramRepository.getUpdates(lastUpdateId + 1)
+        val result = ITelegramRepository.getUpdates(lastUpdateId + 1)
         result.onSuccess { updates ->
             // Filtramos solo los mensajes que no hemos procesado aún.
             val newUpdates = updates.filter { it.updateId > lastUpdateId }
@@ -89,7 +89,7 @@ class TelegramBot @Inject constructor(
                 val guestName = originalText
                 guestNameByChat[chatId] = guestName
                 guestStateByChat[chatId] = GuestState.AWAITING_BUILDING
-                telegramRepository.sendMessage(
+                ITelegramRepository.sendMessage(
                     chatId,
                     "2.- 🏢 Ahora ingresa el EDIFICIO o área a la que se dirige el invitado."
                 )
@@ -110,7 +110,7 @@ class TelegramBot @Inject constructor(
                         "• Edificio: $building\n" +
                         "• Fecha y hora: $dateTime\n" +
                         "Registro almacenado."
-                telegramRepository.sendMessage(chatId, confirmationMessage)
+                ITelegramRepository.sendMessage(chatId, confirmationMessage)
                 return // Salimos tras completar el flujo
             }
 
@@ -156,6 +156,6 @@ class TelegramBot @Inject constructor(
             "REPORTE" -> "📊 Resumen (simulado):\nAlumnos: 10\nDocentes: 3\nPersonal: 5\nInvitados: 2"
             else -> "No entiendo ese comando. Usa: INICIO, IDENTIFICAR, INVITADO, REPORTE o TERMINAR."
         }
-        telegramRepository.sendMessage(chatId, responseText)
+        ITelegramRepository.sendMessage(chatId, responseText)
     }
 }

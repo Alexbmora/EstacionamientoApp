@@ -1,7 +1,7 @@
 package com.alexitodev.estacionamientoapp.data.telegram
 
 import android.util.Log
-import com.alexitodev.estacionamientoapp.domain.telegram.TelegramRepository
+import com.alexitodev.estacionamientoapp.domain.telegram.ITelegramRepository
 import com.alexitodev.estacionamientoapp.domain.telegram.logger.LogEntry
 import com.alexitodev.estacionamientoapp.domain.telegram.logger.LogLevel
 import com.alexitodev.estacionamientoapp.domain.telegram.logger.LogSource
@@ -12,10 +12,10 @@ import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
-class TelegramRepositoryImpl @Inject constructor(
+class TelegramRepository @Inject constructor(
     private val telegramApi: TelegramInstanceApi,
     private val logger: LoggerRepository
-) : TelegramRepository {
+) : ITelegramRepository {
 
     override suspend fun getUpdates(offset: Long): Result<List<TelegramUpdate>> {
         logger.addLog(

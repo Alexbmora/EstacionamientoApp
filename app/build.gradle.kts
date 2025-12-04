@@ -18,9 +18,7 @@ if (localPropertiesFile.exists()) {
 
 android {
     namespace = "com.alexitodev.estacionamientoapp"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.alexitodev.estacionamientoapp"
@@ -47,11 +45,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -76,6 +74,7 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.hilt.android)
+    implementation(libs.scanner)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.work)
     kapt(libs.androidx.hilt.compiler)

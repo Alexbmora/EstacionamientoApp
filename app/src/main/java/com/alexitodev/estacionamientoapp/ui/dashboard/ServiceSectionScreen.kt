@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.alexitodev.estacionamientoapp.domain.bluetooth.BluetoothDeviceDomain
+import com.alexitodev.estacionamientoapp.ui.dashboard.components.BluetoothDeviceSelectionDialog
 import com.alexitodev.estacionamientoapp.ui.theme.AppTheme
 
 @Preview(showBackground = true, name = "Light Mode")
@@ -38,7 +40,14 @@ import com.alexitodev.estacionamientoapp.ui.theme.AppTheme
 fun ServicesSectionLightPreview() {
     AppTheme {
         Surface {
-            ServicesSectionScreen(isSystemRunning = false, onStartStopClick = {})
+            ServicesSectionScreen(
+                isSystemRunning = false,
+                onStartStopClick = {},
+                devices = listOf(),
+                onStartScan = {},
+                onStopScan = {},
+                onDeviceSelected = {}
+            )
         }
     }
 }
@@ -48,7 +57,14 @@ fun ServicesSectionLightPreview() {
 fun ServicesSectionDarkPreview() {
     AppTheme {
         Surface {
-            ServicesSectionScreen(isSystemRunning = true, onStartStopClick = {})
+            ServicesSectionScreen(
+                isSystemRunning = false,
+                onStartStopClick = {},
+                devices = listOf(),
+                onStartScan = {},
+                onStopScan = {},
+                onDeviceSelected = {}
+            )
         }
     }
 }
@@ -56,13 +72,22 @@ fun ServicesSectionDarkPreview() {
 @Composable
 fun ServicesSectionScreen(
     isSystemRunning: Boolean,
-    onStartStopClick: () -> Unit
+    onStartStopClick: () -> Unit,
+    devices: List<BluetoothDeviceDomain>,
+    onStartScan: () -> Unit,
+    onStopScan: () -> Unit,
+    onDeviceSelected: (BluetoothDeviceDomain) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        BluetoothDeviceSection()
+        BluetoothDeviceSection(
+            devices = devices,
+            onStartScan = onStartScan,
+            onStopScan = onStopScan,
+            onDeviceSelected = onDeviceSelected
+        )
         SystemControlSection(
             isSystemRunning = isSystemRunning,
             onStartStopClick = onStartStopClick
@@ -71,19 +96,27 @@ fun ServicesSectionScreen(
 }
 
 @Composable
-private fun BluetoothDeviceSection() {
+private fun BluetoothDeviceSection(
+    devices: List<BluetoothDeviceDomain>,
+    onStartScan: () -> Unit,
+    onStopScan: () -> Unit,
+    onDeviceSelected: (BluetoothDeviceDomain) -> Unit
+) {
     // 1. Estado para controlar si el diálogo está abierto o cerrado
     var showDialog by remember { mutableStateOf(false) }
 
     // 2. Si showDialog es true, mostramos nuestro nuevo Composable
     if (showDialog) {
-        _root_ide_package_.com.alexitodev.estacionamientoapp.ui.dashboard.dialogmodel.BluetoothDeviceSelectionDialog(
-            devices = _root_ide_package_.com.alexitodev.estacionamientoapp.ui.dashboard.dialogmodel.sampleDevices, // Usamos datos de ejemplo por ahora
-            onDismiss = { showDialog = false }, // Al cerrar, cambiamos el estado
-            onSearch = { /* TODO: Lógica para buscar dispositivos */ },
+        BluetoothDeviceSelectionDialog(
+            devices = devices, // <-- Usa la lista real de dispositivos
+            onDismiss = {
+                onStopScan() // Detiene el escaneo si se cierra el diálogo
+                showDialog = false
+            },
+            onSearch = onStartScan, // <-- Llama a la función del ViewModel
             onConfirm = { selectedDevice ->
-                // TODO: Lógica para conectar con el selectedDevice
-                showDialog = false // Cerramos el diálogo al confirmar
+                selectedDevice?.let { onDeviceSelected(it) } // Notifica la selección
+                showDialog = false
             }
         )
     }

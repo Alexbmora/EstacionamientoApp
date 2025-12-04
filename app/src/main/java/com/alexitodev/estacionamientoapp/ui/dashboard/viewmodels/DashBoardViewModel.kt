@@ -8,6 +8,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.alexitodev.estacionamientoapp.data.bluetooth.BleManager
 import com.alexitodev.estacionamientoapp.domain.SystemStatusManager
 import com.alexitodev.estacionamientoapp.work.TelegramWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,16 +21,26 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val systemStatusManager: SystemStatusManager,
+    private val bleManager: BleManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     val systemState = systemStatusManager.systemState
     val logs = systemStatusManager.logs
 
+    val scannedDevices = bleManager.scannedDevices
     private val workManager = WorkManager.getInstance(context)
     private val workName = "telegram_polling_work"
 
     init {
         checkInitialWorkStatus()
+    }
+
+    fun startBleScan() {
+        bleManager.startScan()
+    }
+
+    fun stopBleScan() {
+        bleManager.stopScan()
     }
 
     private fun checkInitialWorkStatus() {

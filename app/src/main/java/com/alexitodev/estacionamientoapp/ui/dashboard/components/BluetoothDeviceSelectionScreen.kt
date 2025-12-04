@@ -1,14 +1,12 @@
-package com.alexitodev.estacionamientoapp.ui.dashboard.dialogmodel
+package com.alexitodev.estacionamientoapp.ui.dashboard.components
 
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
@@ -30,30 +28,43 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.alexitodev.estacionamientoapp.domain.bluetooth.BluetoothDeviceDomain
+import com.alexitodev.estacionamientoapp.ui.theme.AppTheme
 
-// Data class de ejemplo para el preview
-data class BluetoothDevice(
-    val name: String,
-    val macAddress: String,
-    val signalStrength: Int // Usaremos un valor de 1 a 3 para la fuerza
-)
+@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun BluetoothDeviceSelectionDialogPreview() {
 
-// Datos de ejemplo para el preview
-val sampleDevices = listOf(
-    BluetoothDevice("Arduino HC-05", "98:D3:31:FC:2A:1B", 3),
-    BluetoothDevice("Arduino HC-06", "00:14:03:05:5B:3C", 2),
-    BluetoothDevice("ESP32-DevKit", "A4:CF:12:45:8F:2D", 2),
-    BluetoothDevice("HC-05 Module", "00:1A:7D:DA:71:13", 1)
-)
+    // Datos de ejemplo para el preview
+    val sampleDevices = listOf(
+        BluetoothDeviceDomain("Arduino HC-05", "98:D3:31:FC:2A:1B", 3),
+        BluetoothDeviceDomain("Arduino HC-06", "00:14:03:05:5B:3C", 2),
+        BluetoothDeviceDomain("ESP32-DevKit", "A4:CF:12:45:8F:2D", 2),
+        BluetoothDeviceDomain("HC-05 Module", "00:1A:7D:DA:71:13", 1)
+    )
+    AppTheme(darkTheme = true) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)),
+            contentAlignment = Alignment.Center
+        ) {
+            BluetoothDeviceSelectionDialog(
+                devices = sampleDevices,
+                onDismiss = {},
+                onSearch = {},
+                onConfirm = {}
+            )
+        }
+    }
+}
 
 @Composable
 fun BluetoothDeviceSelectionDialog(
-    devices: List<BluetoothDevice>,
+    devices: List<BluetoothDeviceDomain>,
     onDismiss: () -> Unit,
     onSearch: () -> Unit,
-    onConfirm: (BluetoothDevice?) -> Unit
+    onConfirm: (BluetoothDeviceDomain?) -> Unit
 ) {
-    var selectedDevice by remember { mutableStateOf<BluetoothDevice?>(null) }
+    var selectedDevice by remember { mutableStateOf<BluetoothDeviceDomain?>(null) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -138,7 +149,7 @@ fun BluetoothDeviceSelectionDialog(
 
 @Composable
 fun DeviceItem(
-    device: BluetoothDevice,
+    device: BluetoothDeviceDomain,
     isSelected: Boolean,
     onSelect: () -> Unit
 ) {
@@ -166,20 +177,27 @@ fun DeviceItem(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text(text = device.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text(text = device.macAddress, fontSize = 12.sp, color = colorScheme.onSurfaceVariant)
+                    Text(text = device.name.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(text = device.address, fontSize = 12.sp, color = colorScheme.onSurfaceVariant)
                 }
             }
-            SignalStrengthIndicator(strength = device.signalStrength)
+            SignalStrengthIndicator(rssi = device.rssi)
         }
     }
 }
 
 @Composable
-fun SignalStrengthIndicator(strength: Int) {
+fun SignalStrengthIndicator(rssi: Int) {
+    // Lógica para convertir RSSI a una escala de 1 a 3
+    val strength = when {
+        rssi > -67 -> 3  // Señal fuerte
+        rssi > -80 -> 2  // Señal media
+        else -> 1        // Señal débil
+    }
+
     val color = when (strength) {
         3 -> Color.Green
-        2 -> Color.Yellow
+        2 -> Color(0xFFFDD835) // Un amarillo más visible
         else -> Color.Red
     }
     Icon(
@@ -189,20 +207,3 @@ fun SignalStrengthIndicator(strength: Int) {
     )
 }
 
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun BluetoothDeviceSelectionDialogPreview() {
-    _root_ide_package_.com.alexitodev.estacionamientoapp.ui.theme.AppTheme(darkTheme = true) {
-        Box(
-            modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)),
-            contentAlignment = Alignment.Center
-        ) {
-            BluetoothDeviceSelectionDialog(
-                devices = sampleDevices,
-                onDismiss = {},
-                onSearch = {},
-                onConfirm = {}
-            )
-        }
-    }
-}

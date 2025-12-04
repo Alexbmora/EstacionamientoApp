@@ -1,7 +1,7 @@
 package com.alexitodev.estacionamientoapp.di
 
-import com.alexitodev.estacionamientoapp.data.telegram.TelegramRepositoryImpl
-import com.alexitodev.estacionamientoapp.domain.telegram.TelegramRepository
+import com.alexitodev.estacionamientoapp.data.telegram.TelegramRepository
+import com.alexitodev.estacionamientoapp.domain.telegram.ITelegramRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,5 +14,5 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindTelegramRepository(impl: TelegramRepositoryImpl): TelegramRepository
+    abstract fun bindTelegramRepository(impl: TelegramRepository): ITelegramRepository
 }
